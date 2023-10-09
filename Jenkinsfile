@@ -58,7 +58,7 @@ pipeline {
         stage('Deploy') {
 		    steps {
 			    withDockerRegistry(credentialsId: '0c988655-89ee-4f54-a123-a8b80ff41229', toolName: 'docker') {
-		           sh "docker run -d --name-shop-shop -p 8070:8070 raji0808/shopping-cart1:latest"
+			   sh "docker run -d --name-shop-shop -p 8070:8070 raji0808/shopping-cart1:latest"
                     }
 		 }
             }
