@@ -57,7 +57,7 @@ pipeline {
         }
         stage('Deploy') {
 		    steps {
-			     withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
+		           withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
 			   sh "docker run -d --name-shop-shop -p 8081:8081 raji0808/shopping-cart1:latest"
                     }
 		 }
