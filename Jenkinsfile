@@ -2,6 +2,7 @@ pipeline {
     agent any
     tools{
         jdk  'jdk17'
+        nodejs 'node16'
         maven  'maven3'
     }
     environment{
@@ -10,7 +11,7 @@ pipeline {
     stages {
         stage('Git Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/RAJAMMA0808/Shopping-Cart1.git'
+                git branch: 'main', changelog: false, poll: false, url: 'https://github.com/RAJAMMA0808/Shopping-Cart1.git'
             }
         }
         
@@ -43,25 +44,26 @@ pipeline {
                 sh "mvn clean package -DskipTests=true"
             }
         }
-        
-        stage('Docker Build & Push') {
-            steps {
+		stage("Docker Build & Push"){
+            steps{
                 script{
-                     withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
-                        sh "docker build -t shopping-cart1 -f docker/Dockerfile ."
-                        sh "docker tag  shopping-cart raji0808/shopping-cart1:latest"
-                        sh "docker push raji0808/shopping-cart1:latest"
+                   withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
+                       sh "docker build -t shopping-cart1 ."
+                       sh "docker tag shopping-cart1 raji0808/shopping-cart1:latest "
+                       sh "docker push raji0808/shopping-cart1:latest "
                     }
                 }
             }
         }
-        stage('Deploy') {
-		    steps {
-		           withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
-			   sh "docker run -d --name-shop-shop -p 8081:8081 raji0808/shopping-cart1:latest"
-                    }
-		 }
+        stage("TRIVY"){
+            steps{
+                sh "trivy image raji0808/shopping-cart1:latest > trivy.txt" 
             }
-	}	 
+        }
+        stage('Deploy to container'){
+            steps{
+                sh 'docker run -d --name shopping-cart1 -p 8082:8082 raji0808/shopping-cart1:latest'
+            }
+        }
     }
 }
